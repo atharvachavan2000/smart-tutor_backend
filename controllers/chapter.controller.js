@@ -1,4 +1,5 @@
 import Chapter from "../models/chapter.model.js";
+import axios from "axios";
 
 export const addChapter = async (req, res) => {
     let chapter;
@@ -24,6 +25,8 @@ export const getAllChapters = async (req, res) => {
     res.status(200).json(res.advancedResults);
 }
 
+
+
 export const getChapterById = async (req, res) => {
     let chapter;
     try {
@@ -40,4 +43,111 @@ export const getChapterById = async (req, res) => {
         success: true,
         chapter: chapter
     })
+}
+
+export const generateQna = async (req, res) => {
+    try {
+
+
+        let chapter = await Chapter.findById(req.params.id).populate('user');
+        if (!chapter) {
+            res.status(403).json({
+                success: false,
+                error: "Chapter doesn't exist!"
+            })
+        }
+
+        let qna = await axios.post("https://smart-tutor-330305.de.r.appspot.com/qna", {
+            chapter: chapter.text
+        })
+
+        if (recommend.data) {
+            //chapter.recommendations = recommend.data;
+            //await chapter.save();
+
+
+            res.status(200).json({
+                success: true,
+                qna
+            })
+        }
+    } catch(err) {
+        console.log(err.response)
+        res.status(500).json({
+            success: false,
+            error: "Something went wrong"
+        })
+
+    }
+}
+
+export const generateRecommendations = async (req, res) => {
+    try {
+
+
+        let chapter = await Chapter.findById(req.params.id).populate('user');
+        if (!chapter) {
+            res.status(403).json({
+                success: false,
+                error: "Chapter doesn't exist!"
+            })
+        }
+
+        let recommend = await axios.post("https://smart-tutor-330305.de.r.appspot.com/recommend", {
+            chapter: chapter.text
+        })
+
+        if (recommend.data) {
+            chapter.recommendations = recommend.data;
+            await chapter.save();
+
+
+            res.status(200).json({
+                success: true,
+                chapter
+            })
+        }
+    } catch(err) {
+        res.status(500).json({
+            success: false,
+            error: "Something went wrong"
+        })
+
+    }
+}
+
+export const generateNotes = async (req, res) => {
+    try {
+
+
+        let chapter = await Chapter.findById(req.params.id).populate('user');
+        if (!chapter) {
+            res.status(403).json({
+                success: false,
+                error: "Chapter doesn't exist!"
+            })
+        }
+
+        let notes = await axios.post("https://smart-tutor-330305.de.r.appspot.com/notes", {
+            chapter: chapter.text
+        })
+
+        if (notes.data) {
+            chapter.notes = notes.data[0];
+            await chapter.save();
+
+
+            res.status(200).json({
+                success: true,
+                chapter
+            })
+        }
+    } catch(err) {
+        console.log(err)
+        res.status(500).json({
+            success: false,
+            error: "Something went wrong"
+        })
+
+    }
 }

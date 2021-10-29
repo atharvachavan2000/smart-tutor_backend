@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 
 const Chapter = new Schema({
     user: {
-        type: Schema.Types.ObjectId, ref: 'Chapter',
+        type: Schema.Types.ObjectId, ref: 'Auth',
     },
     text: {
         type: String,
